@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
+import emailjs from 'emailjs-com';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, XCircle } from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,8 @@ const Contact = () => {
     subject: '',
     message: ''
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -21,48 +23,48 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+    setIsLoading(true);
+
+    try {
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        formData,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      );
+
+      setToast({ type: 'success', message: 'Message sent successfully!' });
+      setFormData({ name: '', email: '', phone: '', company: '', subject: '', message: '' });
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setToast({ type: 'error', message: 'Failed to send message. Please try again later.' });
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setToast(null), 4000);
+    }
   };
 
   const contactInfo = [
-    {
-      icon: MapPin,
-      title: 'Head Office',
-      details: [
-        'Gurramguda, Hyderabad - 500036,',
-        'Telangana, India'
-      ],
-      color: 'from-teal-500 to-teal-600'
-    },
-    {
-      icon: Phone,
-      title: 'Phone Number',
-      details: ['+91-8885684441', '+91-8885684449'],
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      icon: Mail,
-      title: 'Email Address',
-      details: ['zoopexim@gmail.com'],
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      icon: Clock,
-      title: 'Business Hours (IST)',
-      details: [
-        'Mon - Fri: 9:00 AM - 6:00 PM',
-        'Sat: 9:00 AM - 2:00 PM',
-        'Sun: Emergency Only'
-      ],
-      color: 'from-purple-500 to-purple-600'
-    }
+    { icon: MapPin, title: 'Head Office', details: ['Gurramguda, Hyderabad - 500036,', 'Telangana, India'], color: 'from-teal-500 to-teal-600' },
+    { icon: Phone, title: 'Phone Number', details: ['+91-8885684441', '+91-8885684449'], color: 'from-blue-500 to-blue-600' },
+    { icon: Mail, title: 'Email Address', details: ['zoopexim@gmail.com'], color: 'from-green-500 to-green-600' },
+    { icon: Clock, title: 'Business Hours (IST)', details: ['Mon - Fri: 9:00 AM - 6:00 PM','Sat: 9:00 AM - 2:00 PM','Sun: Emergency Only'], color: 'from-purple-500 to-purple-600' }
   ];
 
   return (
-    <div className="pt-16">
+    <div className="pt-16 relative">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-lg text-white flex items-center gap-2
+          ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'} animate-slide-in`}
+        >
+          {toast.type === 'success' ? <CheckCircle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-teal-50 to-white">
         <div className="max-w-7xl mx-auto px-4 text-center space-y-6">
@@ -79,20 +81,13 @@ const Contact = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {contactInfo.map((info, index) => (
-            <div
-              key={index}
-              className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-            >
-              <div
-                className={`w-16 h-16 bg-gradient-to-r ${info.color} rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
-              >
+            <div key={index} className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className={`w-16 h-16 bg-gradient-to-r ${info.color} rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
                 <info.icon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">{info.title}</h3>
               <div className="space-y-1">
-                {info.details.map((detail, i) => (
-                  <p key={i} className="text-gray-600 text-sm">{detail}</p>
-                ))}
+                {info.details.map((detail, i) => <p key={i} className="text-gray-600 text-sm">{detail}</p>)}
               </div>
             </div>
           ))}
@@ -113,58 +108,20 @@ const Contact = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block mb-2 font-medium text-sm text-gray-700">Full Name *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                    placeholder="Your name"
-                  />
+                  <input type="text" id="name" name="name" required value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500" placeholder="Your name" />
                 </div>
                 <div>
                   <label htmlFor="email" className="block mb-2 font-medium text-sm text-gray-700">Email *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                    placeholder="email@example.com"
-                  />
+                  <input type="email" id="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500" placeholder="email@example.com" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone Number"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                />
-                <input
-                  type="text"
-                  name="company"
-                  placeholder="Company Name"
-                  value={formData.company}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-                />
+                <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500" />
+                <input type="text" name="company" placeholder="Company Name" value={formData.company} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500" />
               </div>
 
-              <select
-                name="subject"
-                required
-                value={formData.subject}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500"
-              >
+              <select name="subject" required value={formData.subject} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500">
                 <option value="">Select a subject</option>
                 <option value="import">Import Services</option>
                 <option value="export">Export Services</option>
@@ -173,25 +130,11 @@ const Contact = () => {
                 <option value="other">Other</option>
               </select>
 
-              <textarea
-                name="message"
-                rows={6}
-                required
-                value={formData.message}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 resize-none"
-                placeholder="Tell us about your needs..."
-              ></textarea>
+              <textarea name="message" rows={6} required value={formData.message} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 resize-none" placeholder="Tell us about your needs..."></textarea>
 
-              <button
-                type="submit"
-                disabled={isSubmitted}
-                className="flex items-center justify-center px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition duration-300"
-              >
-                {isSubmitted ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 mr-2" /> Message Sent!
-                  </>
+              <button type="submit" disabled={isLoading} className="flex items-center justify-center px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition duration-300">
+                {isLoading ? (
+                  <span>Sending...</span>
                 ) : (
                   <>
                     <Send className="w-5 h-5 mr-2" /> Send Message
@@ -216,6 +159,16 @@ const Contact = () => {
           </div>
         </div>
       </section>
+
+      <style jsx>{`
+        .animate-slide-in {
+          animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes slideIn {
+          0% { opacity: 0; transform: translateX(100%); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 };

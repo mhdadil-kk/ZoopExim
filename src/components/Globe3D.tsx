@@ -214,10 +214,8 @@ const Globe3D = () => {
     return (
       <div 
         ref={containerRef}
-        className="w-full h-[100vh] min-h-[800px] bg-black flex items-center justify-center"
-      >
-        <div className="text-white text-xl">Loading Globe...</div>
-      </div>
+        className="w-full h-[100vh] min-h-[800px] bg-black"
+      />
     );
   }
 

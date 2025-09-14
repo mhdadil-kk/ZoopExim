@@ -3,6 +3,9 @@ import './globals.css'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import WhatsAppButton from '../components/WhatsAppButton'
+import dynamic from 'next/dynamic';
+
+const Loader = dynamic(() => import('../components/Loader'), { ssr: false });
 
 
 export const metadata: Metadata = {
@@ -78,6 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white">
+        <Loader />
         <Header />
         <main>
           {children}
