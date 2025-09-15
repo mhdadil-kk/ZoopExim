@@ -1,12 +1,6 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import WhatsAppButton from '../components/WhatsAppButton'
-import dynamic from 'next/dynamic';
-
-const Loader = dynamic(() => import('../components/Loader'), { ssr: false });
-
+import type { Metadata } from 'next';
+import './globals.css';
+import ClientLayout from './ClientLayout';
 
 export const metadata: Metadata = {
   title: 'Zoop Exim Private Limited - Global Import & Export Company',
@@ -81,13 +75,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white">
-        <Loader />
-        <Header />
-        <main>
+        <ClientLayout>
           {children}
-        </main>
-        <Footer />
-        <WhatsAppButton />
+        </ClientLayout>
       </body>
     </html>
   )

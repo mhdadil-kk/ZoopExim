@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Loader = () => {
+export default function Loader({ onLoadingComplete }: { onLoadingComplete: () => void }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const startTime = Date.now();
@@ -16,6 +17,11 @@ const Loader = () => {
       
       setTimeout(() => {
         setIsLoading(false);
+        // Add a small delay before hiding to allow exit animation to complete
+        setTimeout(() => {
+          setIsVisible(false);
+          onLoadingComplete();
+        }, 500);
         document.body.style.overflow = 'auto';
       }, remainingTime);
     };
@@ -70,42 +76,63 @@ const Loader = () => {
     }
   }, []);
 
+  if (!isVisible) return null;
+
   return (
-    <AnimatePresence>
-      {isLoading && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
-        >
-          <div className="w-48 h-48 relative">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0.8, rotate: -5 }}
+    <div className="fixed inset-0 z-[9999] bg-white">
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed inset-0 flex items-center justify-center"
+          >
+            <motion.div 
+              className="w-48 h-48 relative"
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ 
-                scale: [0.95, 1.05, 0.95],
-                opacity: [0.8, 1, 0.8],
-                rotate: [-5, 5, -5],
+                scale: 1,
+                opacity: 1,
+                transition: {
+                  duration: 0.3,
+                  ease: [0.4, 0, 0.2, 1]
+                }
               }}
-              transition={{
-                duration: 3,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatType: "loop"
+              exit={{ 
+                scale: 0.9, 
+                opacity: 0,
+                transition: {
+                  duration: 0.3,
+                  ease: [0.4, 0, 0.2, 1]
+                }
               }}
-              className="w-full h-full origin-center"
             >
-              <img 
-                src="/logo.svg" 
-                alt="ZoopExim Logo" 
-                className="w-full h-full object-contain"
-              />
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  opacity: [0.9, 1, 0.9],
+                  rotate: [0, 5, 0],
+                }}
+                transition={{
+                  duration: 2.5,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "loop"
+                }}
+                className="w-full h-full origin-center"
+              >
+                <img 
+                  src="/logo.svg" 
+                  alt="ZoopExim Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </motion.div>
             </motion.div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
-
-export default Loader;
