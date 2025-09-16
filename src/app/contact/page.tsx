@@ -38,7 +38,6 @@ const Contact = () => {
       setToast({ type: 'success', message: 'Message sent successfully!' });
       setFormData({ name: '', email: '', phone: '', company: '', subject: '', message: '' });
     } catch (err) {
-      console.error('EmailJS error:', err);
       setToast({ type: 'error', message: 'Failed to send message. Please try again later.' });
     } finally {
       setIsLoading(false);

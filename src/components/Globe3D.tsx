@@ -70,10 +70,7 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
 
   // Globe setup and auto-rotation
   useEffect(() => {
-    console.log('🔄 useEffect triggered, isClient:', isClient, 'globeEl.current:', !!globeEl.current);
-    
     if (!isClient) {
-      console.log('⏸️ Not client-side yet, waiting...');
       return;
     }
 
@@ -84,29 +81,23 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
 
     const setupGlobe = () => {
       setupAttempts++;
-      console.log(`🔧 Globe setup attempt #${setupAttempts}...`);
       
       try {
         const globe = globeEl.current;
         
         if (!globe) {
-          console.error('❌ Globe ref is null, attempt:', setupAttempts);
           if (setupAttempts < 10) {
             setTimeout(setupGlobe, 500);
           }
           return;
         }
 
-        console.log('✅ Globe ref found:', globe);
-
         // Set initial view with larger globe (closer altitude) - starting from India
         globe.pointOfView({ lat: 28.6139, lng: 77.2090, altitude: 1.8 }, 0);
-        console.log('📍 Initial point of view set with larger globe - starting from India');
 
         // Enhanced lighting
         const scene = globe.scene();
         if (scene) {
-          console.log('🎨 Setting up lighting...');
           // Clear existing lights
           scene.children = scene.children.filter((child: any) => !(child instanceof THREE.AmbientLight || child instanceof THREE.DirectionalLight));
           
@@ -115,12 +106,7 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
           directionalLight.position.set(5, 3, 5);
           scene.add(ambientLight);
           scene.add(directionalLight);
-          console.log('✅ Lighting setup complete');
-        } else {
-          console.warn('⚠️ Scene not available, skipping lighting setup');
         }
-
-        console.log('✅ Globe setup complete, starting rotation...');
         
         // Mark globe as ready and notify parent
         setIsGlobeReady(true);
@@ -130,7 +116,6 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
 
         // Auto-rotation with user interaction support
         const startRotation = () => {
-          let frameCount = 0;
           let lastInteractionTime = 0;
           let isUserInteracting = false;
           
@@ -138,13 +123,11 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
           const handleInteractionStart = () => {
             isUserInteracting = true;
             lastInteractionTime = Date.now();
-            console.log('👆 User interaction started - pausing auto-rotation');
           };
           
           const handleInteractionEnd = () => {
             isUserInteracting = false;
             lastInteractionTime = Date.now();
-            console.log('✋ User interaction ended - resuming auto-rotation in 2 seconds');
           };
           
           // Add interaction listeners
@@ -157,8 +140,6 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
           const rotate = () => {
             const currentGlobe = globeEl.current;
             if (currentGlobe) {
-              frameCount++;
-              
               // Only auto-rotate if user hasn't interacted recently (2 second delay)
               const timeSinceInteraction = Date.now() - lastInteractionTime;
               const shouldAutoRotate = !isUserInteracting && timeSinceInteraction > 2000;
@@ -171,11 +152,6 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
                 const newLng = (indiaLng + (rotationAngle * 0.1)) % 360;
                 const adjustedLng = newLng > 180 ? newLng - 360 : newLng;
                 
-                // Log every 60 frames (roughly every second at 60fps)
-                if (frameCount % 60 === 0) {
-                  console.log(`🌍 Globe auto-rotating - Frame: ${frameCount}, Angle: ${rotationAngle.toFixed(1)}, Lng: ${adjustedLng.toFixed(2)}`);
-                }
-                
                 // Update globe rotation - maintain India's latitude as center
                 const currentView = currentGlobe.pointOfView();
                 currentGlobe.pointOfView({ 
@@ -186,12 +162,9 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
               }
               
               animationId = requestAnimationFrame(rotate);
-            } else {
-              console.error('❌ Globe rotation stopped - globeEl.current is null');
             }
           };
           
-          console.log('🚀 Starting auto-rotation with user interaction support...');
           rotate();
         };
 
@@ -199,13 +172,11 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
         startRotation();
 
       } catch (error) {
-        console.error('❌ Globe setup error:', error);
         // Cleanup
         if (setupAttempts < 5) {
           setTimeout(setupGlobe, 1000);
         } else if (onGlobeReady) {
           // If we've exceeded setup attempts, still notify parent to avoid infinite loading
-          console.warn('⚠️ Max setup attempts reached, proceeding anyway');
           setIsGlobeReady(true);
           onGlobeReady();
         }
@@ -213,15 +184,12 @@ const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
     };
 
     // Initialize globe setup with delay
-    console.log('⏰ Scheduling globe setup in 1000ms...');
     setTimeout(setupGlobe, 1000);
 
     // Cleanup
     return () => {
-      console.log('🧹 Cleaning up globe rotation...');
       if (animationId) {
         cancelAnimationFrame(animationId);
-        console.log('✅ Animation frame cancelled');
       }
     };
   }, [isClient]);
