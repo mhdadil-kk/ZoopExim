@@ -47,7 +47,7 @@ const Contact = () => {
   };
 
   const contactInfo = [
-    { icon: MapPin, title: 'Head Office', details: ['Gurramguda, Hyderabad - 500036,', 'Telangana, India'], color: 'from-teal-500 to-teal-600' },
+    { icon: MapPin, title: 'Head Office', details: ['Vanastaliapuram ,Hyderabad - 500036,', 'Telangana, India'], color: 'from-teal-500 to-teal-600' },
     { icon: Phone, title: 'Phone Number', details: ['+91-8885684441', '+91-8885684449'], color: 'from-blue-500 to-blue-600' },
     { icon: Mail, title: 'Email Address', details: ['zoopexim@gmail.com'], color: 'from-green-500 to-green-600' },
     { icon: Clock, title: 'Business Hours (IST)', details: ['Mon - Fri: 9:00 AM - 6:00 PM','Sat: 9:00 AM - 2:00 PM','Sun: Emergency Only'], color: 'from-purple-500 to-purple-600' }

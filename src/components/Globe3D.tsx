@@ -16,11 +16,16 @@ const GlobeWrapper = dynamic(
   }
 );
 
-const Globe3D = () => {
+interface Globe3DProps {
+  onGlobeReady?: () => void;
+}
+
+const Globe3D = ({ onGlobeReady }: Globe3DProps) => {
   const globeEl = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isClient, setIsClient] = useState(false);
+  const [isGlobeReady, setIsGlobeReady] = useState(false);
 
   const [markers] = useState([
     { lat: 28.6139, lng: 77.2090, name: 'India' },
@@ -116,6 +121,12 @@ const Globe3D = () => {
         }
 
         console.log('✅ Globe setup complete, starting rotation...');
+        
+        // Mark globe as ready and notify parent
+        setIsGlobeReady(true);
+        if (onGlobeReady) {
+          onGlobeReady();
+        }
 
         // Auto-rotation with user interaction support
         const startRotation = () => {
@@ -189,9 +200,14 @@ const Globe3D = () => {
 
       } catch (error) {
         console.error('❌ Globe setup error:', error);
-        // Retry setup
+        // Cleanup
         if (setupAttempts < 5) {
           setTimeout(setupGlobe, 1000);
+        } else if (onGlobeReady) {
+          // If we've exceeded setup attempts, still notify parent to avoid infinite loading
+          console.warn('⚠️ Max setup attempts reached, proceeding anyway');
+          setIsGlobeReady(true);
+          onGlobeReady();
         }
       }
     };
@@ -222,7 +238,7 @@ const Globe3D = () => {
   return (
     <div 
       ref={containerRef}
-      className="w-full h-[100vh] min-h-[800px] relative overflow-hidden flex items-center justify-center"
+      className={`w-full h-[100vh] min-h-[800px] relative overflow-hidden flex items-center justify-center transition-opacity duration-1000 ${isGlobeReady ? 'opacity-100' : 'opacity-0'}`}
     >
       <div className="w-full h-full flex items-center justify-center">
         <GlobeWrapper

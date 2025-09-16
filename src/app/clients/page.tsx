@@ -46,7 +46,7 @@ const Clients = () => {
     // Food & Beverage
     { name: "Buffalo Wild Wings", logo: "/buffalowildwings.svg" },
     { name: "Fisherman's Wharf", logo: "/fisherman'swharf.avif" },
-    { name: "Yum Yum Tree", logo: "/YumYumTree.webp" },
+    { name: "Yum Yum Tree", logo: "/yumyumtree.webp" },
     { name: "Sky Gourmet", logo: "/skygourmet.jpg" },
 
     // Specialty Brands & Others

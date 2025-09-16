@@ -124,7 +124,7 @@ export default function Loader({ onLoadingComplete }: { onLoadingComplete: () =>
                 className="w-full h-full origin-center"
               >
                 <img 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="ZoopExim Logo" 
                   className="w-full h-full object-contain"
                 />

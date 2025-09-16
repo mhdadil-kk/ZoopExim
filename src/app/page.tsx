@@ -1,9 +1,19 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Globe, Users, Shield, Zap, TrendingUp } from 'lucide-react';
-import Globe3D from '../components/Globe3D';
+import dynamic from 'next/dynamic';
+import Loader from '../components/Loader';
+
+// Dynamically import Globe3D with no SSR
+const Globe3D = dynamic(() => import('../components/Globe3D'), {
+  ssr: false,
+  loading: () => null
+});
 
 const Home = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const highlights = [
     { icon: Globe, title: '12+ Years Experience', desc: 'Proven track record in global trade' },
     { icon: Users, title: '50+ Global Clients', desc: 'Trusted by businesses worldwide' },
@@ -35,12 +45,15 @@ const Home = () => {
 
   return (
     <div className="pt-20 md:pt-24">
+      {/* Loader that will handle the initial loading state */}
+      <Loader onLoadingComplete={() => setIsLoading(false)} />
+      
       {/* Hero Section with Globe */}
-      <section className="relative min-h-screen w-full overflow-hidden bg-black text-white flex items-center justify-center px-6 md:px-12">
+      <section className={`relative min-h-screen w-full overflow-hidden bg-black text-white flex items-center justify-center px-6 md:px-12 transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
         <div className="absolute inset-0 z-0">
-          <Globe3D />
+          <Globe3D onGlobeReady={() => {}} />
         </div>
-        <div className="relative z-20 text-center space-y-6 max-w-3xl">
+        <div className={`relative z-20 text-center space-y-6 max-w-3xl transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
           <h1 className="hero-title text-3xl sm:text-4xl md:text-5xl text-white font-medium">
             Explore Global Trade With
           </h1>
