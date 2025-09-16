@@ -54,7 +54,7 @@ const Clients = () => {
     { name: "Dry Fruit Basket", logo: "/dryfruitbasket.svg" },
     { name: "Qmart", logo: "/qmart.png" },
     { name: "Bragg Organic", logo: "/braggorganic.svg" },
-    { name: "Bio Balance New Zealand", logo: "/biobalanceNewZealand.jpg" },
+    { name: "Bio Balance New Zealand", logo: "/biobalancenewzealand.jpg" },
   ];
 
   if (isLoading) {
